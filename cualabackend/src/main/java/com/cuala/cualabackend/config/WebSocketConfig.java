@@ -1,6 +1,6 @@
 package com.cuala.cualabackend.config;
 
-import com.cuala.cualabackend.messages.MessageHandler;
+import com.cuala.cualabackend.chat.inbound.InboundMessageHandler;
 import java.util.HashMap;
 import java.util.Map;
 import org.springframework.context.annotation.Bean;
@@ -15,10 +15,16 @@ import org.springframework.web.reactive.socket.WebSocketHandler;
 @EnableWebFlux
 public class WebSocketConfig implements WebFluxConfigurer {
 
+  private final InboundMessageHandler inboundMessageHandler;
+
+  public WebSocketConfig(InboundMessageHandler inboundMessageHandler) {
+    this.inboundMessageHandler = inboundMessageHandler;
+  }
+
   @Bean
   public HandlerMapping reactiveWebSocketHandlerMapping() {
     Map<String, WebSocketHandler> map = new HashMap<>();
-    map.put("/chat", new MessageHandler());
+    map.put("/chat", inboundMessageHandler);
     int order = -1;
     return new SimpleUrlHandlerMapping(map, order);
   }
