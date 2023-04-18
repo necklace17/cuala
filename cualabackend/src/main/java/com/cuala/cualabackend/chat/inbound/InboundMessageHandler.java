@@ -12,17 +12,23 @@ import reactor.core.publisher.Mono;
 public class InboundMessageHandler implements WebSocketHandler {
 
   private final MessageService messageService;
+  private final InboundTemplateEngine inboundTemplateEngine;
 
-  public InboundMessageHandler(MessageService messageService) {
+  public InboundMessageHandler(MessageService messageService,
+      InboundTemplateEngine inboundTemplateEngine) {
     this.messageService = messageService;
+    this.inboundTemplateEngine = inboundTemplateEngine;
   }
 
   @Override
   public Mono<Void> handle(WebSocketSession webSocketSession) {
-    Flux<WebSocketMessage> output = webSocketSession.receive()
-        .map(webSocketMessage -> webSocketMessage.getPayloadAsText())
+    Flux<WebSocketMessage> response = webSocketSession.receive()
+        .map(WebSocketMessage::getPayloadAsText)
         .flatMap(messageService::processMessage)
-        .map(value -> webSocketSession.textMessage("Echo " + value));
-    return webSocketSession.send(output);
+        .map(inboundTemplateEngine::buildSuccessfulResponse)
+        .map(webSocketSession::textMessage)
+        .log();
+    return webSocketSession.send(response);
   }
+
 }
