@@ -26,8 +26,7 @@ public class InboundMessageHandler implements WebSocketHandler {
         .map(WebSocketMessage::getPayloadAsText)
         .flatMap(messageService::processMessage)
         .map(inboundTemplateEngine::buildSuccessfulResponse)
-        .map(webSocketSession::textMessage)
-        .log();
+        .map(webSocketSession::textMessage);
     return webSocketSession.send(response);
   }
 

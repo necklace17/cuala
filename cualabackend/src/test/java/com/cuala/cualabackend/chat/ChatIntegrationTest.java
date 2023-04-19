@@ -1,4 +1,4 @@
-package com.cuala.cualabackend.chat.inbound;
+package com.cuala.cualabackend.chat;
 
 
 import static org.assertj.core.api.Assertions.assertThat;
