@@ -23,29 +23,32 @@ import reactor.test.StepVerifier;
 
 class InboundMessageHandlerTest {
 
+  private static final DataBufferFactory dataBufferFactory = new DefaultDataBufferFactory();
   @Mock
   private MessageService messageService;
-
   @Mock
   private InboundTemplateEngine inboundTemplateEngine;
   @InjectMocks
   private InboundMessageHandler inboundMessageHandler;
 
-
   @BeforeEach
   public void setUp() {
     MockitoAnnotations.openMocks(this);
-
+    when(messageService.processMessage(anyString())).thenAnswer(
+        invocation -> Mono.just(invocation.getArgument(0)));
+    when(inboundTemplateEngine.buildSuccessfulResponse(anyString())).thenAnswer(
+        invocation -> annotateSuccessMessage(invocation.getArgument(0)));
   }
 
+  private static String annotateSuccessMessage(String inputMessage) {
+    return "Success " + inputMessage;
+  }
 
   @Test
   public void handle_shouldProcessMessageAndReturnResponse() {
     // Arrange
     String messageFromClient = "hello";
     WebSocketSession webSocketSession = createWebSocketSessionFromMessage(messageFromClient);
-    var successMessage = "Success " + messageFromClient;
-    mockDependencies(messageFromClient, successMessage);
     // Act
     inboundMessageHandler.handle(webSocketSession);
     // Assert
@@ -53,20 +56,13 @@ class InboundMessageHandlerTest {
     verify(webSocketSession).send(argumentCaptor.capture());
     StepVerifier.create(argumentCaptor.getValue()
             .map(WebSocketMessage::getPayloadAsText))
-        .expectNext(successMessage)
+        .expectNext(annotateSuccessMessage(messageFromClient))
         .verifyComplete();
   }
 
   private WebSocketSession createWebSocketSessionFromMessage(String messageFromClient) {
     Flux<WebSocketMessage> incomingFlux = createIncomingFlux(messageFromClient);
     return createWebSocketSession(incomingFlux);
-  }
-
-  private void mockDependencies(String messageFromClient, String successMessage) {
-    when(messageService.processMessage(messageFromClient)).thenReturn(
-        Mono.just(messageFromClient));
-    when(inboundTemplateEngine.buildSuccessfulResponse(messageFromClient)).thenReturn(
-        successMessage);
   }
 
   private static Flux<WebSocketMessage> createIncomingFlux(String messageFromClient) {
@@ -78,13 +74,14 @@ class InboundMessageHandlerTest {
   private static WebSocketSession createWebSocketSession(Flux<WebSocketMessage> incomingFlux) {
     WebSocketSession webSocketSession = mock(WebSocketSession.class);
     when(webSocketSession.receive()).thenReturn(incomingFlux);
-    DataBufferFactory dataBufferFactory = new DefaultDataBufferFactory();
-    when(webSocketSession.textMessage(anyString()))
-        .thenAnswer(invocation -> {
-          String arg = invocation.getArgument(0);
-          return new WebSocketMessage(Type.TEXT,
-              dataBufferFactory.wrap(arg.getBytes()));
-        });
+    when(webSocketSession.textMessage(anyString())).thenAnswer(
+        invocation -> createWebSocketMessage(invocation.getArgument(0)));
     return webSocketSession;
   }
+
+  private static WebSocketMessage createWebSocketMessage(String message) {
+    return new WebSocketMessage(Type.TEXT, dataBufferFactory.wrap(message.getBytes()));
+  }
+
+
 }
