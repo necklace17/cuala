@@ -32,7 +32,7 @@ class ChatIntegrationTest {
   }
 
   @Test
-  public void newTest() {
+  public void testSuccessfulResponse() {
     // Arrange
     var message = "Hello there";
     var expectedReturnMessage = "Message: \"%s\" sent successful".formatted(message);
