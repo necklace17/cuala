@@ -24,7 +24,8 @@ public class InboundMessageHandler implements WebSocketHandler {
   public Mono<Void> handle(WebSocketSession webSocketSession) {
     Flux<WebSocketMessage> response = webSocketSession.receive()
         .map(WebSocketMessage::getPayloadAsText)
-        .flatMap(messageService::processMessage)
+        .flatMap(messageContent -> messageService.processMessage(webSocketSession.getId(),
+            messageContent))
         .map(inboundTemplateEngine::buildSuccessfulResponse)
         .map(webSocketSession::textMessage);
     return webSocketSession.send(response);
