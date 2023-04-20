@@ -45,7 +45,7 @@ class InboundMessageHandlerTest {
   }
 
   @Test
-  public void handle_shouldProcessMessageAndReturnResponse() {
+  public void shouldHandleMessageByMessageProcessingAndTemplateCreationAndSendMessageResponse() {
     // Arrange
     String messageFromClient = "hello";
     WebSocketSession webSocketSession = createWebSocketSessionFromMessage(messageFromClient);
@@ -74,6 +74,7 @@ class InboundMessageHandlerTest {
   private static WebSocketSession createWebSocketSession(Flux<WebSocketMessage> incomingFlux) {
     WebSocketSession webSocketSession = mock(WebSocketSession.class);
     when(webSocketSession.receive()).thenReturn(incomingFlux);
+    when(webSocketSession.getId()).thenReturn("randomId");
     when(webSocketSession.textMessage(anyString())).thenAnswer(
         invocation -> createWebSocketMessage(invocation.getArgument(0)));
     return webSocketSession;
