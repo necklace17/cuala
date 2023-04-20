@@ -34,8 +34,8 @@ class InboundMessageHandlerTest {
   @BeforeEach
   public void setUp() {
     MockitoAnnotations.openMocks(this);
-    when(messageService.processMessage(anyString())).thenAnswer(
-        invocation -> Mono.just(invocation.getArgument(0)));
+    when(messageService.processMessage(anyString(), anyString())).thenAnswer(
+        invocation -> Mono.just(invocation.getArgument(1)));
     when(inboundTemplateEngine.buildSuccessfulResponse(anyString())).thenAnswer(
         invocation -> annotateSuccessMessage(invocation.getArgument(0)));
   }
