@@ -3,6 +3,7 @@ package com.cuala.cualabackend.chat.domain;
 public class Message {
 
   private final String sender;
+  private final String chatRoom;
   private final String content;
   private String id;
 

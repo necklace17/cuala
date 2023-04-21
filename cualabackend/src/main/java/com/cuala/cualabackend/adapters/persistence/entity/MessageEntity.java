@@ -11,10 +11,12 @@ class MessageEntity {
   @Id
   private String id;
   private String sender;
+  private String chatRoom;
   private String content;
 
-  private MessageEntity(String sender, String content) {
+  public MessageEntity(String sender, String chatRoom, String content) {
     this.sender = sender;
+    this.chatRoom = chatRoom;
     this.content = content;
   }
 
