@@ -1,9 +1,9 @@
-package com.cuala.cualabackend.chat.inbound;
+package com.cuala.cualabackend.adapters.web;
 
 import org.springframework.stereotype.Component;
 
 @Component
-public class InboundTemplateEngine {
+public class ResponseTemplateEngine {
 
   String buildSuccessfulResponse(String value) {
     return "Message: \"%s\" sent successful".formatted(value);

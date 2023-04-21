@@ -5,7 +5,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.cuala.cualabackend.chat.application.MessageService;
+import com.cuala.cualabackend.adapters.web.IncomingMessageHandler;
+import com.cuala.cualabackend.adapters.web.ResponseTemplateEngine;
+import com.cuala.cualabackend.chat.MessageService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -27,14 +29,14 @@ class InboundMessageHandlerTest {
   @Mock
   private MessageService messageService;
   @Mock
-  private InboundTemplateEngine inboundTemplateEngine;
+  private ResponseTemplateEngine inboundTemplateEngine;
   @InjectMocks
-  private InboundMessageHandler inboundMessageHandler;
+  private IncomingMessageHandler inboundMessageHandler;
 
   @BeforeEach
   public void setUp() {
     MockitoAnnotations.openMocks(this);
-    when(messageService.processMessage(anyString(), anyString())).thenAnswer(
+    when(messageService.addMessage(anyString(), anyString())).thenAnswer(
         invocation -> Mono.just(invocation.getArgument(1)));
     when(inboundTemplateEngine.buildSuccessfulResponse(anyString())).thenAnswer(
         invocation -> annotateSuccessMessage(invocation.getArgument(0)));
